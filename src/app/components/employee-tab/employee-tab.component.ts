@@ -6,54 +6,44 @@ import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { NgbPaginationModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 
-interface Country {
-  id?: number,
-	name: string;
-	flag: string;
-	department: string;
-	days: number;
+interface Employee {
+	id?: number,
+	name: string,
+	hours: {}
 }
-
-const COUNTRIES: Country[] = [
+const EMPLOYEE: Employee[] = [
 	{
+		id: 1,
 		name: 'Ram',
-		flag: 'f/f3/Flag_of_Russia.svg',
-		department: 'labour',
-		days: 30,
+		hours: {}
 	},
 	{
-		name: 'Tim',
-		flag: 'f/f3/Flag_of_Russia.svg',
-		department: 'labour',
-		days: 30,
+		name: 'krishna',
+		hours: {}
 	},
 	{
-		name: 'Jack',
-		flag: 'f/f3/Flag_of_Russia.svg',
-		department: 'labour',
-		days: 30,
+		name: 'Vishu',
+		hours: {}
 	},
 	{
-		name: 'Lamo',
-		flag: 'f/f3/Flag_of_Russia.svg',
-		department: 'labour',
-		days: 30,
+		name: 'Shiva',
+		hours: {}
 	},
 	{
-		name: 'Quid',
-		flag: 'f/f3/Flag_of_Russia.svg',
-		department: 'labour',
-		days: 30,
+		name: 'Laxman',
+		hours: {}
+	},
+	{
+		name: 'Sita',
+		hours: {}
 	},
 ];
-
-function search(text: string, pipe: PipeTransform): Country[] {
-	return COUNTRIES.filter((country) => {
+function search(text: string, pipe: PipeTransform): Employee[] {
+	return EMPLOYEE.filter((employee) => {
 		const term = text.toLowerCase();
 		return (
-			country.name.toLowerCase().includes(term) ||
-			pipe.transform(country.department).includes(term) ||
-			pipe.transform(country.days).includes(term)
+			employee.name.toLowerCase().includes(term) ||
+			pipe.transform(employee.hours).includes(term)
 		);
 	});
 }
@@ -61,26 +51,67 @@ function search(text: string, pipe: PipeTransform): Country[] {
 @Component({
 	selector: 'app-employee-tab',
 	standalone: true,
-	imports: [DecimalPipe, NgFor, AsyncPipe, ReactiveFormsModule, NgbTypeaheadModule,NgbPaginationModule,FormsModule],
+	imports: [DecimalPipe, NgFor, AsyncPipe, ReactiveFormsModule, NgbTypeaheadModule, NgbPaginationModule, FormsModule],
 	templateUrl: './employee-tab.component.html',
 	providers: [DecimalPipe],
 })
 export class EmployeeTabComponent {
-	countries$: Observable<Country[]>;
+	// countries$: Observable<Country[]>;
+	employee$: Observable<Employee[]>;
 	filter = new FormControl('', { nonNullable: true });
-  page = 1;
+	page = 1;
 	pageSize = 4;
-	collectionSize = COUNTRIES.length;
+	collectionSize = EMPLOYEE.length;
+	dateArray:Date[] = [];
+	currentDate:Date= new Date();
+ Months = [
+	'January',
+	'February',
+	'March',
+	'April',
+	'May',
+	'June',
+	'July',
+	'August',
+	'September',
+	'October',
+	'November',
+	'December'
+];
+ Days = [
+	'Sun',
+	'Mon',
+	'Tue',
+	'Wed',
+	'Thu',
+	'Fri',
+	'Sat'];
+
+
 	constructor(pipe: DecimalPipe) {
-		this.countries$ = this.filter.valueChanges.pipe(
+		this.employee$ = this.filter.valueChanges.pipe(
 			startWith(''),
 			map((text) => search(text, pipe)),
 		);
-    //this.refreshCountries();
+		this.buildDateArray();
+		//this.refreshCountries();
 	}
 
-  refreshCountries() {
-		this.countries$ = of(COUNTRIES.map((country, i) => ({ id: i + 1, ...country })).slice(
+	buildDateArray(){
+		this.dateArray=[];
+		for(let i=1;i< this.getDaysInMonth(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1); i++){
+			var date =  new Date( this.currentDate.getFullYear(), this.currentDate.getMonth(), i);
+			this.dateArray.push(date);
+		}
+
+	}
+
+	getDaysInMonth(month:number, year:number){
+		return  new Date(year, month, 0).getDate();
+	}
+
+	refreshCountries() {
+		this.employee$ = of(EMPLOYEE.map((employee, i) => ({ id: i + 1, ...employee })).slice(
 			(this.page - 1) * this.pageSize,
 			(this.page - 1) * this.pageSize + this.pageSize,
 		))
